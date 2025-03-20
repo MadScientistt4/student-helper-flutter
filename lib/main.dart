@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
+import 'package:file_picker/file_picker.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 void main() {
   runApp(StudentApp());
@@ -30,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ToDoListScreen(),
     DiscussionForumScreen(),
     PomodoroTimerScreen(),
+    NotesOrganizerScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -47,10 +50,15 @@ class _HomeScreenState extends State<HomeScreen> {
         children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.blue,
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.list), label: 'To-Do'),
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Forum'),
           BottomNavigationBarItem(icon: Icon(Icons.timer), label: 'Pomodoro'),
+          BottomNavigationBarItem(icon: Icon(Icons.note), label: 'Notes'),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -79,7 +87,6 @@ class _ToDoListScreenState extends State<ToDoListScreen> {
     final response = await http.get(Uri.parse('http://127.0.0.1:5000/tasks'));
     if (response.statusCode == 200) {
       setState(() {
-        // Expecting a list of task objects, each with an 'id' and 'title'
         tasks = json.decode(response.body);
       });
     }
@@ -164,7 +171,6 @@ class _DiscussionForumScreenState extends State<DiscussionForumScreen> {
     final response = await http.get(Uri.parse('http://127.0.0.1:5000/forums'));
     if (response.statusCode == 200) {
       setState(() {
-        // Expecting a list of forum objects with 'id' and 'name'
         forums = json.decode(response.body);
       });
     }
@@ -257,7 +263,6 @@ class _ChatScreenState extends State<ChatScreen> {
         'http://127.0.0.1:5000/forums/${widget.forumId}/messages'));
     if (response.statusCode == 200) {
       setState(() {
-        // Expecting a list of message objects with 'id' and 'content'
         messages = json.decode(response.body);
       });
     }
@@ -309,6 +314,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
+// ---------------- Pomodoro Timer ---------------------
 class PomodoroTimerScreen extends StatefulWidget {
   @override
   _PomodoroTimerScreenState createState() => _PomodoroTimerScreenState();
@@ -410,3 +416,172 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
   }
 }
 
+// ---------------- Notes Organizer ---------------------
+class NotesOrganizerScreen extends StatefulWidget {
+  @override
+  _NotesOrganizerScreenState createState() => _NotesOrganizerScreenState();
+}
+
+class _NotesOrganizerScreenState extends State<NotesOrganizerScreen> {
+  List notes = [];
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    fetchNotes();
+  }
+
+  Future<void> fetchNotes() async {
+    final response = await http.get(Uri.parse('http://127.0.0.1:5000/notes'));
+    if (response.statusCode == 200) {
+      setState(() {
+        notes = json.decode(response.body);
+      });
+    }
+  }
+
+  Future<void> addTextNote() async {
+    String title = _titleController.text;
+    if (title.isEmpty) return;
+    await http.post(
+      Uri.parse('http://127.0.0.1:5000/notes'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'title': title, 'content': _contentController.text}),
+    );
+    _titleController.clear();
+    _contentController.clear();
+    fetchNotes();
+  }
+
+  Future<void> deleteNote(int noteId) async {
+    await http.delete(Uri.parse('http://127.0.0.1:5000/notes/$noteId'));
+    fetchNotes();
+  }
+
+  Future<void> uploadPdfNote() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (result != null) {
+      var file = result.files.first;
+      var uri = Uri.parse('http://127.0.0.1:5000/notes');
+      var request = http.MultipartRequest('POST', uri);
+      request.fields['title'] = _titleController.text.isNotEmpty
+          ? _titleController.text
+          : 'Untitled';
+
+      if (file.bytes != null) {
+        // On web, use bytes
+        request.files.add(http.MultipartFile.fromBytes(
+          'file',
+          file.bytes!,
+          filename: file.name,
+        ));
+      } else if (file.path != null) {
+        // On mobile/desktop, use file path
+        request.files.add(await http.MultipartFile.fromPath('file', file.path!));
+      }
+
+      var response = await request.send();
+      if (response.statusCode == 201) {
+        _titleController.clear();
+        _contentController.clear();
+        fetchNotes();
+      } else {
+        print('Failed to upload PDF note');
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Note input fields and buttons
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration: InputDecoration(labelText: 'Note Title'),
+              ),
+              TextField(
+                controller: _contentController,
+                decoration: InputDecoration(labelText: 'Note Content'),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: addTextNote,
+                    child: Text('Add Text Note'),
+                  ),
+                  SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: uploadPdfNote,
+                    child: Text('Upload PDF'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        // List of notes
+        Expanded(
+          child: ListView.builder(
+            itemCount: notes.length,
+            itemBuilder: (context, index) {
+              final note = notes[index];
+              bool isPdfNote = note['pdf_filename'] != null && note['pdf_filename'] != '';
+              return ListTile(
+                title: Text(note['title']),
+                subtitle: Text(isPdfNote
+                    ? 'PDF: ${note['pdf_filename']}'
+                    : (note['content'] ?? '')),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () => deleteNote(note['id']),
+                ),
+                onTap: isPdfNote
+                    ? () {
+                  // Navigate to PDF viewer screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PdfViewerScreen(
+                        pdfUrl: 'http://127.0.0.1:5000/uploads/${note['pdf_filename']}',
+                      ),
+                    ),
+                  );
+                }
+                    : null,
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ---------------- PDF Viewer Screen ---------------------
+class PdfViewerScreen extends StatelessWidget {
+  final String pdfUrl;
+
+  PdfViewerScreen({required this.pdfUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("PDF Viewer")),
+      body: SfPdfViewer.network(
+        pdfUrl,
+        key: GlobalKey(),  // Ensure proper state management
+      ),
+    );
+  }
+}
