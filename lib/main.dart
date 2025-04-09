@@ -3,23 +3,209 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 void main() {
   runApp(StudentApp());
+}
+
+
+
+
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Study Helper',
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF1C1C2D),
+        primaryColor: Colors.deepPurple,
+        cardColor: const Color(0xFF2C2C3E),
+      ),
+      home: StudyDashboard(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class StudyDashboard extends StatelessWidget {
+  final List<String> videoUrls = [
+    'https://www.youtube.com/watch?v=1ukSR1GRtMU',
+    'https://www.youtube.com/watch?v=fq4N0hgOWzU'
+  ];
+
+  final List<String> notes = [
+    'This is a note about Flutter widgets and how they work.',
+  ];
+
+  final String studyPlan = 'Week 1: Flutter basics\nWeek 2: Layouts\nWeek 3: State management\nWeek 4: API integration';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Flutter'),
+        backgroundColor: Colors.deepPurple,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            Text("YouTube Videos", style: Theme.of(context).textTheme.titleLarge),
+            SizedBox(height: 10),
+            ...videoUrls.map((url) => YouTubeVideoCard(url: url)).toList(),
+            SizedBox(height: 20),
+            Text("Notes", style: Theme.of(context).textTheme.titleLarge),
+            Card(
+              child: ListTile(
+                title: Text("Subject"),
+                subtitle: Text(notes[0]),
+              ),
+            ),
+            SizedBox(height: 20),
+            Text("Study Plan", style: Theme.of(context).textTheme.titleLarge),
+            Card(
+              child: ListTile(
+                title: Text("Study Plan"),
+                subtitle: Text(studyPlan),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class YouTubeVideoCard extends StatefulWidget {
+  final String url;
+
+  const YouTubeVideoCard({Key? key, required this.url}) : super(key: key);
+
+  @override
+  State<YouTubeVideoCard> createState() => _YouTubeVideoCardState();
+}
+
+class _YouTubeVideoCardState extends State<YouTubeVideoCard> {
+  late YoutubePlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final videoId = YoutubePlayer.convertUrlToId(widget.url)!;
+    _controller = YoutubePlayerController(
+      initialVideoId: videoId,
+      flags: YoutubePlayerFlags(autoPlay: false),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: YoutubePlayer(
+        controller: _controller,
+        showVideoProgressIndicator: true,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+class DirectoryPage extends StatelessWidget {
+  final Map<String, Map<String, dynamic>> directory = {
+    "Auto Service": {
+      "Dasharatha": "08202574202",
+      "Eshwar Nagar": "08202574200",
+      "Night Auto Santosh": 9986921287,
+      // Add the rest...
+    },
+    "Eateries": {
+      "Anupam": "08202572635",
+      "Apoorva Mess": 9535130111,
+      // Add the rest...
+    },
+    // ...Add other categories
+  };
+
+  void _makePhoneCall(String number) async {
+    final Uri launchUri = Uri(scheme: 'tel', path: number);
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Directory')),
+      body: ListView(
+        children: directory.entries.map((category) {
+          return ExpansionTile(
+            title: Text(category.key, style: TextStyle(fontWeight: FontWeight.bold)),
+            children: category.value.entries.map((entry) {
+              return ListTile(
+                title: Text(entry.key),
+                subtitle: Text(entry.value.toString()),
+                trailing: Icon(Icons.call),
+                onTap: () => _makePhoneCall(entry.value.toString()),
+              );
+            }).toList(),
+          );
+        }).toList(),
+      ),
+    );
+  }
 }
 
 class StudentApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Student Helper',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Color(0xFF121212),
+        primaryColor: Colors.teal,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Color(0xFF1F1F1F),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          backgroundColor: Color(0xFF1F1F1F),
+          selectedItemColor: Colors.tealAccent,
+          unselectedItemColor: Colors.grey[500],
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Color(0xFF1F1F1F),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          hintStyle: TextStyle(color: Colors.grey[400]),
+          labelStyle: TextStyle(color: Colors.white),
+        ),
+        textTheme: TextTheme(
+          bodyMedium: TextStyle(color: Colors.white),
+          bodyLarge: TextStyle(color: Colors.white),
+          titleLarge: TextStyle(color: Colors.white),
+        ),
+      ),
       home: HomeScreen(),
     );
   }
 }
+
+
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -33,6 +219,8 @@ class _HomeScreenState extends State<HomeScreen> {
     DiscussionForumScreen(),
     PomodoroTimerScreen(),
     NotesOrganizerScreen(),
+    DirectoryPage(),
+    StudyDashboard(),
   ];
 
   void _onItemTapped(int index) {
@@ -59,6 +247,11 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Forum'),
           BottomNavigationBarItem(icon: Icon(Icons.timer), label: 'Pomodoro'),
           BottomNavigationBarItem(icon: Icon(Icons.note), label: 'Notes'),
+          BottomNavigationBarItem(icon: Icon(Icons.contact_phone), label: 'Directory'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.school),
+            label: 'Study',
+          ),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -393,10 +586,13 @@ class _PomodoroTimerScreenState extends State<PomodoroTimerScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+
               ElevatedButton(
                 onPressed: _startTimer,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  backgroundColor: Colors.teal,
+                  foregroundColor: Colors.white,
                 ),
                 child: Text("Start", style: TextStyle(fontSize: 18)),
               ),
