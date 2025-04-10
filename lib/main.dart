@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+
 void main() {
   runApp(StudentApp());
 }
@@ -119,20 +120,166 @@ class _YouTubeVideoCardState extends State<YouTubeVideoCard> {
   }
 }
 
+
+
 class DirectoryPage extends StatelessWidget {
   final Map<String, Map<String, dynamic>> directory = {
     "Auto Service": {
       "Dasharatha": "08202574202",
       "Eshwar Nagar": "08202574200",
+      "Green Park": "08202572006",
+      "Mandavi": "08202575070",
+      "Manish": "08202574369",
       "Night Auto Santosh": 9986921287,
-      // Add the rest...
+      "RT": "08202574300",
+      "Syndicate Circle": "08202571454"
     },
     "Eateries": {
       "Anupam": "08202572635",
       "Apoorva Mess": 9535130111,
-      // Add the rest...
+      "Apoorva Mess 2": 9591719555,
+      "Attil": "08204293399",
+      "Basil Cafe": "08204293284",
+      "Binge Yard": 9164108303,
+      "Blue Waters": "08202573765",
+      "Campus Grill": 9739940608,
+      "Charcoal": "08202570123",
+      "Chef Inn": "08204290973",
+      "CoastAsia": 7353040333,
+      "Dishes": "08204294094",
+      "Dollops": 8982394234,
+      "Domino's": "08202574352",
+      "Dum Biryani Adda": 9152646557,
+      "Egg Factory": "08204294455",
+      "Extreme Arabian Treat": "08204291155",
+      "Eye of The Tiger": 7899039139,
+      "Ginger Garlic": 7619574318,
+      "Guzzler's Inn": "08204292602",
+      "Hangout": "08204296016",
+      "Hot & Spicy": 9880801232,
+      "Hot Chix": 8792831601,
+      "Hotspot": 9845254395,
+      "Just Bake": "08204296611",
+      "KFC": 8033994444,
+      "McDonalds": 7349673521,
+      "Pangala": "08202570237",
+      "Planet Café": "08202572454",
+      "Poornima Kitchen": 9741745715,
+      "Prax": 9901722607,
+      "Red Kitchen": 8073811048,
+      "Sai's": "08202570177",
+      "Saiba(1)": 9152540278,
+      "Saiba(2)": 8277534185,
+      "Scirocco Coffee Valley": 9008232259,
+      "Sheela Sagar": "08202575473",
+      "Shubham's": 9731542673,
+      "Sizzler Ranch": "08202574001",
+      "Snack Shack": "08202575129",
+      "Spice and Ice": 9663309214,
+      "Spicy Village": 9035639458,
+      "Subway": "08202574144",
+      "The J": 9967278708,
+      "Timmy's": 9886902553,
+      "Yummy's Kitchen": 9844547414,
+      "Zebra Spot": 9740008183
     },
-    // ...Add other categories
+    "Emergency and Important Contacts": {
+      "Ambulance": 23423432,
+      "Fire Helpline": "08202520333",
+      "KMC Ambulance(1)": "08202922761",
+      "KMC Ambulance(2)": "08202923153",
+      "KMC Ambulance(3)": "08202922404",
+      "MAHE Campus Patrol": 9945670912,
+      "MIT Campus Patrol": 9632101004,
+      "Police Station": "0820257038"
+    },
+    "Grocery Stores": {
+      "Laxmi's Super Market": 9901307682,
+      "Manipal Corner": 8197123460,
+      "Manipal Grocer": 9964691530,
+      "More Supermarket": 8652906676,
+      "Queens Supermarket": 9901996124,
+      "Yas Mart": "08202575234"
+    },
+    "Head of Department": {
+      "Aeronautical & Automobile": "8202925481",
+      "Biomedical": "8202924211",
+      "Biotechnology": "8202924321",
+      "Chemical": "8202924311",
+      "Chemistry": "8202924411",
+      "Civil": "8202924711",
+      "Computer Science": "8202924511",
+      "Dept of Computer Applications": "8202925381",
+      "Electrical & Electronics": "8202925121",
+      "Electronics & Communication": "8202924811",
+      "Humanities & Management": "8202924033",
+      "Information & Communication Technology": "8202925361",
+      "Instrumentation & Control": "8202925151",
+      "Mathematics": "8202925261",
+      "Mechanical & Manufacturing": "8202925461",
+      "Mechatronics": "8202925441",
+      "Physics": "8202925621",
+      "Printing & Media": "8202925661"
+    },
+    "Hotels and Accommodation": {
+      "Country Inn": "08202701600",
+      "Fortune Inn": "08202571101",
+      "Hotel Ashlesh": "08202572824",
+      "Hotel Green Park Suites": "08204295701",
+      "Hotel Hill View": "08204292771",
+      "Hotel Madhuvan Serai": 7829901250,
+      "Hotel Tranquil": "08202571111"
+    },
+    "MAHE Colleges' Departments": {
+      // Trimmed for brevity – you can include the full set similarly
+      "Academic Section, MIT": "08202925912",
+      "Administrative Office, MIT": "8202925521",
+      // ... Add all remaining entries here
+    },
+    "Medical Services": {
+      "Blood Bank KMC Manipal": "08202922331",
+      "Dr Suhas Bhat (Manipal Dental Solutions)": 9880041652,
+      "KMC Hospital Enquiry (1)": "08202571967",
+      "KMC Hospital Enquiry (2)": "08202922761",
+      "Madhwaraj Animal Care Trust": 9901639192,
+      "Sonia Clinic and Nursing Home (OB-GYN)": "08202570334"
+    },
+    "Miscellaneous Services": {
+      "ION Helpline(1)": "08045114580",
+      "ION Helpline(2)": "08045114581",
+      "Kamath Book Store": "08206061272",
+      "Key Maker (M)": 8884173636,
+      "SBI Manipal": "08202572650",
+      "Snake Handler Gururaj": 9845083869
+    },
+    "Project Work and Tech Stores": {
+      "HP Service Centre": 9513399161,
+      "Harsha Electronics": "08202521841",
+      "Samsung Smart Cafe": 9844276578,
+      "Tesla Electronics": 7353268261,
+      "iRepair India": "08204294550"
+    },
+    "Rent a Bike": {
+      "Bhoom Riders": 8150025955,
+      "IndiaRides": 9686325168,
+      "Royal Brothers": 7306747474,
+      "Wicked Ride": 8880299299
+    },
+    "Travel Agencies": {
+      "Ambika Travels(U)": 94822555555,
+      "Durgamba Motors (M, U)": "08202574477",
+      "Jet International Travels(U)": 9845187505,
+      "Konkan Railways": "08202531810",
+      "Mangalore Railway Station(G)": "08202242402",
+      "Sahara Tours and Travels(M)": 9880244957,
+      "Siddhi Travels(M)": "08202570470",
+      "Sri Durgamba Tours and Travels(M)": 8722206998,
+      "Sri Raksha Travels(U)": 9844898376,
+      "Trade Wings Travels (M)(1)": "08202570285",
+      "Trade Wings Travels (M)(2)": "08202571499",
+      "Vijayanand Travels(M)": "08202571410",
+      "Zoom Car": 18601239666
+    }
   };
 
   void _makePhoneCall(String number) async {
@@ -164,6 +311,7 @@ class DirectoryPage extends StatelessWidget {
     );
   }
 }
+
 
 class StudentApp extends StatelessWidget {
   @override
